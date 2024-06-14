@@ -1,0 +1,34 @@
+# .github/workflows/tfdestroy.yml
+
+name: Terraform Destroy
+on:
+ workflow_dispatch:
+
+jobs:
+ tf-destroy:
+   runs-on: ubuntu-latest
+   permissions:
+      id-token: write
+      contents: read
+   steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+           aws-region: ap-south-1 
+
+      - name: Terraform Init
+        run: terraform init
+        
+      - name: Show Destroy plan
+        run: terraform plan -destroy
+        continue-on-error: true
+
+      - name: Terraform destroy
+        id: destroy
+        run: terraform destroy -auto-approve
+        
